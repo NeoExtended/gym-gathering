@@ -52,6 +52,8 @@ class MazeBase(gym.Env):
         self.observation_kwargs = (
             {} if observation_kwargs is None else observation_kwargs
         )
+        self.goal = None
+        self.goal_probability = None
         self.goal_range = goal_range
         self.locations = None  # Nonzero freespace - not particle locations!
         self.done = False
