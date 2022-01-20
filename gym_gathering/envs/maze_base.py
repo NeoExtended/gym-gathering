@@ -38,7 +38,7 @@ class MazeBase(gym.Env):
         goal_range: int = 10,
         reward_generator: Union[str, Type[RewardGenerator]] = "continuous",
         reward_kwargs: Optional[Dict] = None,
-        n_particles: int = 256,
+        n_particles: Union[int, str] = 256,
         allow_diagonal: bool = True,
         instance_kwargs: Optional[Dict] = None,
         step_type: Union[str, Type[StepModifier]] = "simple",
@@ -82,11 +82,17 @@ class MazeBase(gym.Env):
         self.step_modifier = None  # type: Optional[StepModifier]
         self._create_modifiers(step_type, {} if step_kwargs is None else step_kwargs)
 
-        if n_particles < 0:
-            self.randomize_n_particles = True
-            self.n_particles = 0
+        self.randomize_n_particles = False
+        self.fill_particles = False
+        self.n_particles = 0
+        if isinstance(n_particles, str):
+            if n_particles == "random":
+                self.randomize_n_particles = True
+            elif n_particles == "filled":
+                self.fill_particles = True
+            else:
+                raise ValueError(f"Encountered invalid value for n_particles {n_particles}")
         else:
-            self.randomize_n_particles = False
             self.n_particles = n_particles
 
         self.reward_generator_class = (
@@ -218,6 +224,8 @@ class MazeBase(gym.Env):
             # If the goal is randomized the reward generator will be replaced on each reset in the update_goal() function.
             if not self.randomize_goal:
                 self.reward_generator.set_particle_count(self.n_particles)
+        if self.fill_particles:
+            self.n_particles = self.freespace.sum()
 
     def update_goal(self, goal):
         self.goal = goal

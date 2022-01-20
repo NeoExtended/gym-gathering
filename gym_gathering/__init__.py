@@ -11,6 +11,7 @@ mazes = {
     "Corridor": "mapdata/map0318.csv",
     "Capillary": "mapdata/map0518.csv",
     "Brain": "mapdata/map0122.csv",
+    "Vessel": "mapdata/small_vessel.csv",
     "RandomRRT": BufferedRRTGenerator,
     "StagesRRT": StagesRRTGenerator,
 }
@@ -20,8 +21,7 @@ default_goals = {
     "Corridor": [82, 80],
     "Capillary": [61, 130],
     "Brain": [96, 204],
-    "RandomRRT": None,
-    "StagesRRT": None,
+    "Vessel": [85, 66],
 }
 
 goal_range = 10
@@ -30,28 +30,28 @@ entry_point = "gym_gathering.envs:MazeBase"
 
 # reward_types = {"Discrete": "goal", "Continuous": "continuous"}
 physics_types = {"Algorithmic": "simple", "Fuzzy": "fuzzy", "Physical": "real-world"}
-particle_counts = {"FixedPC": 256, "RandomPC": -1, "FilledPC": "filled"}
-goal_types = {"DefaultGoal": "default", "RandomGoal": "randomgoal"}
-observation_types = {
-    "Simple": "simple",
-    "RealWorld": "real-world",
-}
+particle_counts = {"FixedPC": 256, "RandomPC": "random", "FilledPC": "filled"}
+goal_types = {"FixedGoal": "default", "RandomGoal": "randomgoal"}
 
-for physics_type, particle_count in itertools.product(physics_types, particle_counts):
+for physics_type, particle_count, goal_type in itertools.product(physics_types, particle_counts, goal_types):
     for maze_type in mazes:
-        id = f"{maze_type}{physics_type}{particle_count}-v0"
+        observation_type = "multichannel"
+        if goal_type == "FixedGoal" and maze_type in default_goals:
+            observation_type = "simple"
+
+        name = f"{maze_type}{physics_type}{particle_count}{goal_type}-v0"
         args = {
             "instance": mazes[maze_type],
-            "goal": default_goals[maze_type],
+            "goal": default_goals.get(maze_type, None) if goal_type == "FixedGoal" else None,
             "goal_range": goal_range,
             "n_particles": particle_counts[particle_count],
             "step_type": physics_types[physics_type],
             "reward_generator": "continuous",
-            "observation_type": "simple",  # TODO
+            "observation_type": observation_type,
         }
 
         register(
-            id=id, entry_point=entry_point, max_episode_steps=time_limit, kwargs=args,
+            id=name, entry_point=entry_point, max_episode_steps=time_limit, kwargs=args,
         )
 
 
