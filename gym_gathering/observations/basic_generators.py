@@ -2,6 +2,7 @@ from typing import Tuple
 
 import gym
 import numpy as np
+
 from gym_gathering.observations.base_observation_generator import (
     ObservationGenerator,
 )

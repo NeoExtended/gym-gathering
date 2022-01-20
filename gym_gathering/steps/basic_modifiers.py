@@ -1,6 +1,7 @@
 from typing import Dict, Tuple
 
 import numpy as np
+
 from gym_gathering.steps.base_step_modifier import StepModifier
 
 

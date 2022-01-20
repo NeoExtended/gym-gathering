@@ -1,13 +1,12 @@
-from typing import Tuple, Union, Type, Dict, Optional, List, Callable
+from typing import Tuple, Union, Type, Dict, Optional, Callable
 
 import cv2
 import gym
 import numpy as np
 from gym.utils import seeding
 
-from gym_gathering.observations import OBS_GENERATORS, ObservationGenerator
-
 from gym_gathering.maze_generators import InstanceGenerator, InstanceReader
+from gym_gathering.observations import OBS_GENERATORS, ObservationGenerator
 from gym_gathering.rewards import RewardGenerator, REWARD_GENERATORS
 from gym_gathering.steps import StepModifier, STEP_MODIFIERS
 
