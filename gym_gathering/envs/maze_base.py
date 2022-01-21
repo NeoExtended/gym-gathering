@@ -33,7 +33,7 @@ class MazeBase(gym.Env):
     def __init__(
         self,
         instance: Union[str, Type[InstanceGenerator]],
-        goal: Union[Tuple[int, int], Callable],
+        goal: Optional[Union[Tuple[int, int], Callable]],
         goal_range: int = 10,
         reward_generator: Union[str, Type[RewardGenerator]] = "continuous",
         reward_kwargs: Optional[Dict] = None,
@@ -151,17 +151,17 @@ class MazeBase(gym.Env):
         self.cost = None
         self.locations = np.transpose(np.nonzero(self.freespace))
 
-        if goal:
-            self.randomize_goal = False
-            self.goal_probability = None
-            self.update_goal(goal)
-        else:
+        if goal is None or goal is callable(goal): # Goal is dynamic
+            # Random goals require a dynamic cost map which will be calculated on each reset.
             self.randomize_goal = True
             self.goal_probability = np.full(
                 (len(self.locations),), 1 / len(self.locations)
-            )  # Uniform distribution
+            )  # Uniform goal probability distribution
             self.goal = [0, 0]
-            # Random goals require a dynamic cost map which will be calculated on each reset.
+        else: # Goal is fixed
+            self.randomize_goal = False
+            self.goal_probability = None
+            self.update_goal(goal)
 
     def reset(self):
         if self.map_generator.has_next():
@@ -221,12 +221,12 @@ class MazeBase(gym.Env):
             self.n_particles = self.np_random.randint(
                 1, min(len(locations), max_particles)
             )
-
-            # If the goal is randomized the reward generator will be replaced on each reset in the update_goal() function.
-            if not self.randomize_goal:
-                self.reward_generator.set_particle_count(self.n_particles)
         if self.fill_particles:
             self.n_particles = self.freespace.sum()
+
+        # If the goal is randomized the reward generator will be replaced on each reset in the update_goal() function.
+        if (self.randomize_n_particles or self.fill_particles) and not self.randomize_goal:
+            self.reward_generator.set_particle_count(self.n_particles)
 
     def update_goal(self, goal):
         self.goal = goal
