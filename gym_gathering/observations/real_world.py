@@ -4,9 +4,7 @@ import cv2
 import gym
 import numpy as np
 
-from gym_gathering.observations.base_observation_generator import (
-    ObservationGenerator,
-)
+from gym_gathering.observations.base_observation_generator import ObservationGenerator
 
 
 class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
