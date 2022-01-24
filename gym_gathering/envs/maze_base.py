@@ -1,3 +1,4 @@
+import collections
 from typing import Tuple, Union, Type, Dict, Optional, Callable
 
 import cv2
@@ -37,7 +38,7 @@ class MazeBase(gym.Env):
         goal_range: int = 10,
         reward_generator: Union[str, Type[RewardGenerator]] = "continuous",
         reward_kwargs: Optional[Dict] = None,
-        n_particles: Union[int, str] = 256,
+        n_particles: Union[str, int, Tuple[int, int]] = 256,
         allow_diagonal: bool = True,
         instance_kwargs: Optional[Dict] = None,
         step_type: Union[str, Type[StepModifier]] = "simple",
@@ -86,13 +87,24 @@ class MazeBase(gym.Env):
         self.randomize_n_particles = False
         self.fill_particles = False
         self.n_particles = 0
+        self.min_particles = 1
+        self.max_particles = None
         if isinstance(n_particles, str):
             if n_particles == "random":
                 self.randomize_n_particles = True
             elif n_particles == "filled":
                 self.fill_particles = True
             else:
-                raise ValueError(f"Encountered invalid value for n_particles {n_particles}")
+                raise ValueError(
+                    f"Encountered invalid value for n_particles {n_particles}"
+                )
+        elif isinstance(n_particles, collections.abc.Sequence):
+            self.randomize_n_particles = True
+            self.min_particles = n_particles[0]
+            self.max_particles = n_particles[1]
+            assert (
+                self.min_particles < self.max_particles
+            ), "The minimum number of particles must be smaller than the maximum number of particles!"
         else:
             assert n_particles > 0, "The number of particles must be greater than zero!"
             self.n_particles = n_particles
@@ -152,14 +164,14 @@ class MazeBase(gym.Env):
         self.cost = None
         self.locations = np.transpose(np.nonzero(self.freespace))
 
-        if goal is None or goal is callable(goal): # Goal is dynamic
+        if goal is None or goal is callable(goal):  # Goal is dynamic
             # Random goals require a dynamic cost map which will be calculated on each reset.
             self.randomize_goal = True
             self.goal_probability = np.full(
                 (len(self.locations),), 1 / len(self.locations)
             )  # Uniform goal probability distribution
             self.goal = [0, 0]
-        else: # Goal is fixed
+        else:  # Goal is fixed
             self.randomize_goal = False
             self.goal_probability = None
             self.update_goal(goal)
@@ -212,21 +224,24 @@ class MazeBase(gym.Env):
                 new_goal = locations[goal_idx]
             self.update_goal([new_goal[1], new_goal[0]])
 
-    def _randomize_n_particles(self, locations, max_particles=4500):
+    def _randomize_n_particles(self, locations):
         """
         Computes a random number of particles for the current map.
         :param locations: (list) Number of free locations for particles
         :param fan_out: (int) Parameter to control the maximum number of particles as a fraction of possible particle locations.
         """
+        max_particles = (
+            len(locations) if self.max_particles is None else self.max_particles
+        )
         if self.randomize_n_particles:
-            self.n_particles = self.np_random.randint(
-                1, min(len(locations), max_particles)
-            )
+            self.n_particles = self.np_random.randint(self.min_particles, max_particles)
         if self.fill_particles:
             self.n_particles = self.freespace.sum()
 
         # If the goal is randomized the reward generator will be replaced on each reset in the update_goal() function.
-        if (self.randomize_n_particles or self.fill_particles) and not self.randomize_goal:
+        if (
+            self.randomize_n_particles or self.fill_particles
+        ) and not self.randomize_goal:
             self.reward_generator.set_particle_count(self.n_particles)
 
     def update_goal(self, goal):
@@ -237,7 +252,7 @@ class MazeBase(gym.Env):
             self.goal_range,
             self.n_particles,
             self.action_map,
-            **self.reward_kwargs
+            **self.reward_kwargs,
         )
 
     def update_goal_probs(self, probs: np.ndarray):
