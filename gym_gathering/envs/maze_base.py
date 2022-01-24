@@ -94,6 +94,7 @@ class MazeBase(gym.Env):
             else:
                 raise ValueError(f"Encountered invalid value for n_particles {n_particles}")
         else:
+            assert n_particles > 0, "The number of particles must be greater than zero!"
             self.n_particles = n_particles
 
         self.reward_generator_class = (
