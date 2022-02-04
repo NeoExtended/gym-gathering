@@ -1,5 +1,5 @@
 import collections
-from typing import Tuple, Union, Type, Dict, Optional, Callable
+from typing import Tuple, Union, Type, Dict, Optional, Callable, Any
 
 import cv2
 import gym
@@ -254,6 +254,9 @@ class MazeBase(gym.Env):
             self.action_map,
             **self.reward_kwargs,
         )
+
+    def set_value(self, obj: str, name: str, value: Any):
+        setattr(getattr(self, obj), name, value)
 
     def update_goal_probs(self, probs: np.ndarray):
         assert len(probs) == len(self.locations)
