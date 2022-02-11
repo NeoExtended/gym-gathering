@@ -51,7 +51,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
 
         # Scale up
         observation = cv2.resize(
-            observation, self.real_world_size, interpolation=cv2.INTER_AREA
+            observation,
+            (self.real_world_size[1], self.real_world_size[0]),
+            interpolation=cv2.INTER_AREA,
         )
 
         # Add stationary dirt
@@ -73,7 +75,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         noisy = self.generate_noise(noisy, noise_type="gauss")
 
         # Downscale
-        downscaled = cv2.resize(noisy, output_shape, interpolation=cv2.INTER_AREA)
+        downscaled = cv2.resize(
+            noisy, (output_shape[1], output_shape[0]), interpolation=cv2.INTER_AREA
+        )
 
         # Threshold
         ret, out = cv2.threshold(downscaled, 80, 255, cv2.THRESH_BINARY)
