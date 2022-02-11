@@ -12,6 +12,7 @@ mazes = {
     "Capillary": "mapdata/map0518.csv",
     "Brain": "mapdata/map0122.csv",
     "Vessel": "mapdata/small_vessel.csv",
+    "Pulmonary": "mapdata/pulmonary.csv",
     "RandomRRT": BufferedRRTGenerator,
     "StagesRRT": StagesRRTGenerator,
 }
@@ -33,7 +34,9 @@ physics_types = {"Algorithmic": "simple", "Fuzzy": "fuzzy", "Physical": "real-wo
 particle_counts = {"FixedPC": 256, "RandomPC": "random", "FilledPC": "filled"}
 goal_types = {"FixedGoal": "default", "RandomGoal": "randomgoal"}
 
-for physics_type, particle_count, goal_type in itertools.product(physics_types, particle_counts, goal_types):
+for physics_type, particle_count, goal_type in itertools.product(
+    physics_types, particle_counts, goal_types
+):
     for maze_type in mazes:
         observation_type = "multichannel"
         if goal_type == "FixedGoal" and maze_type in default_goals:
@@ -42,7 +45,9 @@ for physics_type, particle_count, goal_type in itertools.product(physics_types, 
         name = f"{maze_type}{physics_type}{particle_count}{goal_type}-v0"
         args = {
             "instance": mazes[maze_type],
-            "goal": default_goals.get(maze_type, None) if goal_type == "FixedGoal" else None,
+            "goal": default_goals.get(maze_type, None)
+            if goal_type == "FixedGoal"
+            else None,
             "goal_range": goal_range,
             "n_particles": particle_counts[particle_count],
             "step_type": physics_types[physics_type],
