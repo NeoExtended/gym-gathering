@@ -85,12 +85,22 @@ class PhysicalMovementModifier(StepModifier):
 
         # Calculate exact positions
         exact_locations = self.exact_locations + self.particle_speed
+        rounded_locations = np.rint(exact_locations).astype(int)
+
+        # Particles might move faster than a single pixel per step so clip the position to the border.
+        # Every maze is required to have at least one non-free pixel of border - clipping results in a collision.
+        rounded_locations[:, 0] = np.clip(
+            rounded_locations[:, 0], 0, self.freespace.shape[0] - 1
+        )
+        rounded_locations[:, 1] = np.clip(
+            rounded_locations[:, 1], 0, self.freespace.shape[1] - 1
+        )
 
         # Calculate integer update
-        rounded_update = np.rint(exact_locations).astype(int) - locations
+        rounded_update = rounded_locations - locations
 
         if self.use_self_collision:
-            valid_locations = self.self_collision(locations)
+            valid_locations = self.self_collision(locations, rounded_locations)
             rounded_update = np.where(
                 valid_locations, rounded_update, np.zeros_like(rounded_update)
             )
@@ -103,12 +113,9 @@ class PhysicalMovementModifier(StepModifier):
         ]
         return valid_locations[:, np.newaxis]
 
-    def self_collision(self, locations: np.ndarray):
-        # Calculate the future position of each particle
-        positions = np.rint(self.exact_locations + self.particle_speed).astype(int)
-
+    def self_collision(self, locations: np.ndarray, future_locations: np.ndarray):
         # Initial collisions are wall collisions
-        collisions = self.check_collision(self.freespace, positions)
+        collisions = self.check_collision(self.freespace, future_locations)
         current_collisions = len(collisions) - collisions.sum()
         prev_collisions = -1
 
@@ -117,7 +124,7 @@ class PhysicalMovementModifier(StepModifier):
         while current_collisions > prev_collisions:
             prev_collisions = current_collisions
 
-            real_positions = np.where(collisions, positions, locations)
+            real_positions = np.where(collisions, future_locations, locations)
             unique, counts = np.unique(real_positions, return_counts=True, axis=0)
 
             current_distribution = np.copy(self.maze) * (
