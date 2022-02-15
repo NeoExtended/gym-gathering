@@ -125,16 +125,14 @@ class PhysicalMovementModifier(StepModifier):
             prev_collisions = current_collisions
 
             real_positions = np.where(collisions, future_locations, locations)
-            unique, counts = np.unique(real_positions, return_counts=True, axis=0)
 
             current_distribution = np.copy(self.maze) * (
                 self.max_particles_per_cell + 1
             )
-            current_distribution[unique[:, 0], unique[:, 1]] = counts
-            current_distribution[
-                current_distribution <= self.max_particles_per_cell
-            ] = 1
-            current_distribution[current_distribution > self.max_particles_per_cell] = 0
+            np.add.at(current_distribution, tuple(real_positions.T), 1)
+            current_distribution = np.where(
+                current_distribution <= self.max_particles_per_cell, 1, 0
+            )
 
             new_collisions = self.check_collision(current_distribution, real_positions)
 
