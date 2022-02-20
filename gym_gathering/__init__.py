@@ -12,7 +12,7 @@ mazes = {
     "Capillary": "mapdata/map0518.csv",
     "Brain": "mapdata/map0122.csv",
     "Vessel": "mapdata/small_vessel.csv",
-    "Pulmonary": "mapdata/pulmonary.csv",
+    "Coronary": "mapdata/coronary.csv",
     "RandomRRT": BufferedRRTGenerator,
     "StagesRRT": StagesRRTGenerator,
 }
@@ -23,7 +23,7 @@ default_goals = {
     "Capillary": [61, 130],
     "Brain": [96, 204],
     "Vessel": [85, 66],
-    "Pulmonary": [112, 32],
+    "Coronary": [112, 32],
 }
 
 goal_range = 10
