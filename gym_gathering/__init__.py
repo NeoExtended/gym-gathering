@@ -23,7 +23,7 @@ default_goals = {
     "Capillary": [61, 130],
     "Brain": [96, 204],
     "Vessel": [85, 66],
-    "Coronary": [112, 32],
+    "Coronary": [52, 87],
 }
 
 goal_range = 10
