@@ -36,7 +36,9 @@ Episodes for every environment will be automatically truncated after 2000 steps 
 
 ### Mazes
 This package comes with five fixed mazes:
+
 ![This is an image](docs/images/Instances.png)
+
 Particles can move in the light blue areas and get blocked by the dark blue areas.
 Each maze has a default goal position (marked by a red circle).
 
@@ -63,7 +65,7 @@ If you want to manually set a goal position, it can pass the coordinates of the 
 ### Number of particles
 Particles are randomly distributed over each possible free location of the selected maze.
 By default, 256 randomly generated particles are created at the start of each episode.
-The number of particles can be controlled by the `n_particles` parameter, which can be set to a range by passing a tuple, or to `filled` to get create completely filled maze.
+The number of particles can be controlled by the `n_particles` parameter, which can be set to a range by passing a tuple, or to `filled` to create a completely filled maze.
 
 ### Naming
 
