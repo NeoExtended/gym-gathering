@@ -35,6 +35,8 @@ This package adds a series of named gym-environments in a combination of various
 Each environment can be further customized - especially the reward function and the observations can be either selected from a number of existing choices, or even custom-built.
 Episodes for every environment will be automatically truncated after 2000 steps of interaction.
 
+## Properties
+
 ### Mazes
 This package comes with five fixed mazes:
 
@@ -68,7 +70,27 @@ Particles are randomly distributed over each possible free location of the selec
 By default, 256 randomly generated particles are created at the start of each episode.
 The number of particles can be controlled by the `n_particles` parameter, which can be set to a range by passing a tuple, or to `filled` to create a completely filled maze.
 
-### Naming
+### Environment Naming
+Depending on the desired behavior of the environment, this package creates a number of named environments which follow a nomenclature:
+
+```
+[Maze][PhysicsType][ParticleCount][GoalType]-v0
+
+Examples:
+CorridorAlgorithmicFixedPCFixedGoal-v0
+BrainPhysicalRandomPCRandomGoal-v0
+```
+
+The possible values are listed below:
+
+| Parameter     | Description                                          | Possible Values                                                     | 
+|---------------|------------------------------------------------------|---------------------------------------------------------------------|
+| Maze          | Controls the type of the maze.                       | `Corridor`, `Capillary`, `Brain`, `Coronary`, `Vessel`, `StagesRRT` |
+| PhysicsType   | Controls the type of the environment physics.        | `Algorithmic`, `Physical`                                           |
+| ParticleCount | Controls the number of randomly generated particles. | `FixedPC`, `RandomPC`, `FilledPC`                                   |
+| GoalType      | Controls the selection of the goal position.         | `FixedGoal`, `RandomGoal`                                           |
 
 
-# Benchmarks
+## Benchmarks
+
+# Reference
