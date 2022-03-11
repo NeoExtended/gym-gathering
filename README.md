@@ -1,3 +1,5 @@
+<img src="docs/images/corridor_episode.gif" align="right" width="35%"/>
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # Gym Gathering
@@ -33,11 +35,10 @@ This package adds a series of named gym-environments in a combination of various
 Each environment can be further customized - especially the reward function and the observations can be either selected from a number of existing choices, or even custom-built.
 Episodes for every environment will be automatically truncated after 2000 steps of interaction.
 
-
 ### Mazes
 This package comes with five fixed mazes:
 
-![This is an image](docs/images/Instances.png)
+![Mazes](docs/images/Instances.png)
 
 Particles can move in the light blue areas and get blocked by the dark blue areas.
 Each maze has a default goal position (marked by a red circle).
