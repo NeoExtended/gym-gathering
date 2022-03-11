@@ -71,7 +71,7 @@ By default, 256 randomly generated particles are created at the start of each ep
 The number of particles can be controlled by the `n_particles` parameter, which can be set to a range by passing a tuple, or to `filled` to create a completely filled maze.
 
 ### Environment Naming
-Depending on the desired behavior of the environment, this package creates a number of named environments which follow a nomenclature:
+Depending on the desired behavior of the environment, this package creates a number of pre-defined named environments which follow a nomenclature:
 
 ```
 [Maze][PhysicsType][ParticleCount][GoalType]-v0
@@ -83,13 +83,47 @@ BrainPhysicalRandomPCRandomGoal-v0
 
 The possible values are listed below:
 
-| Parameter     | Description                                          | Possible Values                                                     | 
-|---------------|------------------------------------------------------|---------------------------------------------------------------------|
-| Maze          | Controls the type of the maze.                       | `Corridor`, `Capillary`, `Brain`, `Coronary`, `Vessel`, `StagesRRT` |
-| PhysicsType   | Controls the type of the environment physics.        | `Algorithmic`, `Physical`                                           |
-| ParticleCount | Controls the number of randomly generated particles. | `FixedPC`, `RandomPC`, `FilledPC`                                   |
-| GoalType      | Controls the selection of the goal position.         | `FixedGoal`, `RandomGoal`                                           |
+| Parameter     | Description                                          | Possible Values                                                                  | 
+|---------------|------------------------------------------------------|----------------------------------------------------------------------------------|
+| Maze          | Controls the type of the maze.                       | `Corridor`, `Capillary`, `Brain`, `Coronary`, `Vessel`, `StagesRRT`, `RandomRRT` |
+| PhysicsType   | Controls the type of the environment physics.        | `Algorithmic`, `Physical`, `Fuzzy`                                               |
+| ParticleCount | Controls the number of randomly generated particles. | `FixedPC`, `RandomPC`, `FilledPC`                                                |
+| GoalType      | Controls the selection of the goal position.         | `FixedGoal`, `RandomGoal`                                                        |
 
+
+## Interaction
+For the particle gathering task, specific observations and rewards are not strictly enforced.
+If you find a better way to encode the environment information, or to provide feedback to the RL agent, we highly encourage to do so.
+However, this package contains a number of default observations and a reward generation toolkit to make it easy to experiment with the environments.
+
+### Observations
+By default, observations are encoded as a single-channel image which has the size of the selected maze.
+The image represents a binary encoding of the position of each particle (positions containing particles will have a value of 255). 
+
+Environments with random goal positions will add a second image channel, encoding the position of the goal.
+Additionally, environments which also randomize the shape of the maze will provide a third image channel which contains the shape of the current maze.
+
+### Rewards
+By default, rewards are generated from the change in two metrics: 
+1. The maximum distance any particle is away from the goal position
+2. The average distance of any particle to the goal position
+
+Both metrics are scaled to be approximately in the interval [0, 1] to have an equal influence.
+Additionally, the agent receives a small time-penalty at each step.
+
+### Actions
+Particles can be moved into one of eight directions:
+
+| Action | Direction  |
+|--------|------------|
+| 0      | East       |
+| 1      | South-East |
+| 2      | South      |
+| 3      | South-West |
+| 4      | West       |
+| 5      | North-West |
+| 6      | North      |
+| 7      | North-East |
 
 ## Benchmarks
 
