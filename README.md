@@ -128,3 +128,27 @@ Particles can be moved into one of eight directions:
 ## Benchmarks
 
 # Reference
+
+### Parameters
+If you want to further customize the environment you can pass `kwargs` to `gym.make()` when creating the environment.
+Below is a list of parameters which change the default behavior of the environment:
+
+
+| Parameter            | Description                                                                                                                                                 | Default Value | Possible Values                                                                                                                                                               | 
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `goal`               | Center of the target location (may be random).                                                                                                              |               | `Tuple[int, int]`, `None`                                                                                                                                                     |
+| `goal_range`         | Size of the target location.                                                                                                                                | 10            | `int`                                                                                                                                                                         |
+| `n_particles`        | Number of particles. Pass `filled` for a completely filled maze.                                                                                            | 256           | `int`, `Tuple[int, int]`, `filled`, `random`                                                                                                                                  |
+| `allow_diagonal`     | Allows or disallows the use of diagonal particle movements.                                                                                                 | True          | `bool`                                                                                                                                                                        |
+| `reward_type`        | Pass a class of the type `RewardGenerator` which gets called after every step to calculate the reward. Also accepts names of pre-defined reward generators. | `continuous`  |                                                                                                                                                                               |
+| `reward_kwargs`      | Additional arguments which should be passed to the reward generator                                                                                         |               |                                                                                                                                                                               |
+| `step_type`          | Pass a class of the type `StepModifier` to control how particles move. Also accepts names of pre-defined step-generators.                                   | `simple`      | `simple` for algorithmic particles and `physical` for physical particles                                                                                                      |
+| `step_kwargs`        | Additional arguments which should be passed to the step modifier                                                                                            |               |                                                                                                                                                                               |
+| `observation_type`   | Pass a class of the type `ObservationGenerator` to generate observations after each step. Also accepts names of pre-defined observation-generators.         | `simple`      | `simple` for a single-channel image, `multichannel` for a generator which encodes information into separate channels, `real-world` for distorted single-channel observations. |
+ | `observation_kwargs` | Additional arguments which should be passed to the observation generator                                                                                    |               |                                                                                                                                                                               |
+ 
+### Functions
+Usually the environment should be fully-parameterized at the beginning of the training process. 
+However, in a few cases, it might be necessary to change parameters during training. 
+To update any value of the member objects (e.g. the observation generator), you can use the function `set_value(obj, parameter_name, value)`.
+
