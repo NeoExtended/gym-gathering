@@ -38,14 +38,18 @@ Episodes for every environment will be automatically truncated after 2000 steps 
 ## Properties
 
 ### Mazes
-This package comes with five fixed mazes:
+This package includes five different maze environments:
 
 ![Mazes](docs/images/Instances.png)
 
 Particles can move in the light blue areas and get blocked by the dark blue areas.
 Each maze has a default goal position (marked by a red circle).
 
-Additionally, mazes with vessel-like structure can be randomly generated. 
+Additionally, mazes with vessel-like structure can be randomly generated.
+The generation is based on rapidly exploring random trees (RRTs).
+Two different environments can be selected which simulate different behavior:
+1. `RandomRRT`: For every episode a new maze is generated. The goal position will be randomly selected from the set of free pixels.
+2. `StagesRRT`: Mazes work like levels in a video game. The agent will act in the first maze (called stage) until it successfully solves it. Then the environment advances to the next stage. If the agent fails to complete the episode before it gets truncated, the environment returns to stage 0. Goal positions will be randomly selected for each new episode. 
 
 ### Particle Physics
 The simulation can be run using two different modes depending on the desired behavior of the particles.
