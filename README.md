@@ -17,7 +17,7 @@ This problem becomes interesting in scenarios where a certain payload should be 
 An example would be the transport of particles inside the human body (e.g. to combat a tumor).
 
 ### Installation
-Currently installation can be done by cloning this repository and using `pip` for a local installation. 
+Currently, installation can be done by cloning this repository and using `pip` for a local installation. 
 
 #### Install from pip
 The easiest way to install the environments is to use the available pip package using:
@@ -89,14 +89,19 @@ In the *algorithmic* mode, particles directly change their positions.
 This means that in every step, each particle which is not blocked by a wall will move exactly one pixel.
 If two particles enter the same pixel they will merge and never split up again.
 
+#### Fuzzy particles
+In the *fuzzy* physics mode, particles behave similar to algorithmic particles, but introduce randomized errors to the particle control.
+At each step and for each particle there is a chance to move into a random direction and particles may ignore the given action.
+Particles which have previously merged will still stick together and not split up again.
+
 #### Physical particles
 In the *physical* mode, particles are accelerated and change their positions depending on their current speed.
-Particles also are affected by drag and we account for inter-particle collision if more than 3 particles enter the same pixel.
+Particles also are affected by drag, and we account for inter-particle collision if more than 3 particles enter the same pixel.
 Particles have a randomized weight and therefore may split up again, even if they previously entered the same pixel.
 
 ### Goal Positions
 Each maze comes with a fixed default goal position. 
-Additionaly, goal positions can be set to random, which results in a new goal position after each episode.
+Additionally, goal positions can be set to random, which results in a new goal position after each episode.
 If you want to manually set a goal position, it can pass the coordinates of the goal using the `goal` parameter.
 
 ### Number of particles
@@ -126,7 +131,7 @@ The possible values are listed below:
 
 ## Interaction
 For the particle gathering task, specific observations and rewards are not strictly enforced.
-If you find a better way to encode the environment information, or to provide feedback to the RL agent, we highly encourage to do so.
+If you find a better way to encode the environment information, or to provide feedback to the RL agent, we highly encourage doing so.
 However, this package contains a number of default observations and a reward generation toolkit to make it easy to experiment with the environments.
 
 ### Observations
