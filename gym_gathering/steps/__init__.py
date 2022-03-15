@@ -7,10 +7,10 @@ from gym_gathering.steps.basic_modifiers import (
 from gym_gathering.steps.physical_modifier import PhysicalMovementModifier
 
 
-def ActionErrorMovement(**kwargs):
-    base = SimpleMovementModifier(**kwargs)
-    base.add_sub_modifier(RandomMovementModifier(**kwargs))
-    base.add_sub_modifier(FuzzyMovementModifier(**kwargs))
+def ActionErrorMovement(action_map, **kwargs):
+    base = SimpleMovementModifier(action_map=action_map, **kwargs)
+    base.add_sub_modifier(RandomMovementModifier(action_map=action_map, **kwargs))
+    base.add_sub_modifier(FuzzyMovementModifier(action_map=action_map, **kwargs))
     return base
 
 

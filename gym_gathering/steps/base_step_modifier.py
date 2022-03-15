@@ -32,8 +32,13 @@ class StepModifier(ABC):
     ) -> np.ndarray:
         pass
 
-    def step(self, action: int, locations: np.ndarray) -> np.ndarray:
-        update = self._step(action, locations, np.zeros_like(locations))
+    def step(
+        self, action: int, locations: np.ndarray, update: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if update is None:
+            update = np.zeros_like(locations)
+
+        update = self._step(action, locations, update)
         for modifier in self.sub_modifiers:
             update = modifier.step(action, locations, update)
         return update
