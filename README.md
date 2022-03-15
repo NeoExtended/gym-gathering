@@ -16,7 +16,7 @@ Just think of the particles as magnetic dust in a maze, surrounded by powerful e
 This problem becomes interesting in scenarios where a certain payload should be brought to a target by very small agents that do not have enough volume to store the energy for their own movements. 
 An example would be the transport of particles inside the human body (e.g. to combat a tumor).
 
-## Installation
+### Installation
 Currently installation can be done by cloning this repository and using `pip` for a local installation. 
 
 #### Install from pip
@@ -62,7 +62,7 @@ If two particles enter the same pixel they will merge and never split up again.
 #### Physical particles
 In the *physical* mode, particles are accelerated and change their positions depending on their current speed.
 Particles also are affected by drag and we account for inter-particle collision if more than 3 particles enter the same pixel.
-Particles have a randomized weight and therefore may split up again, even if the previously entered the same pixel.
+Particles have a randomized weight and therefore may split up again, even if they previously entered the same pixel.
 
 ### Goal Positions
 Each maze comes with a fixed default goal position. 
