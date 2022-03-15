@@ -20,7 +20,10 @@ An example would be the transport of particles inside the human body (e.g. to co
 Currently installation can be done by cloning this repository and using `pip` for a local installation. 
 
 #### Install from pip
-**Note:** A PyPI package will be released soon.
+The easiest way to install the environments is to use the available pip package using:
+```
+pip install gym-gathering
+```
 
 #### Install from source
 To install the package directly from this repository, you can simply clone it and run the installation process using pip:
@@ -28,6 +31,33 @@ To install the package directly from this repository, you can simply clone it an
 git clone https://github.com/NeoExtended/gym-gathering.git
 cd gym-gathering
 pip install -e .
+```
+
+This also includes a [script](run_env_as_player.py) which lets you play the environments yourself using the arrow keys.
+
+#### Basic Usage
+The following is a very basic usage example.
+The available environments are discussed [here](https://github.com/NeoExtended/gym-gathering#environment-naming).
+
+```python
+import gym
+import gym_gathering  # This is needed to register the environments
+
+env = gym.make("CorridorAlgorithmicFixedPCFixedGoal-v0")
+observation, info = env.reset(seed=42, return_info=True)
+done = False
+total_reward = 0
+length = 0
+
+while not done:
+    action = env.action_space.sample()  # Replace the random sample by your agent
+    observation, reward, done, info = env.step(action)
+    total_reward += reward
+    length += 1
+    # env.render() # optionally render the environment
+    
+env.close()
+print(f"Total reward: {total_reward}, episode length: {length}")
 ```
 
 # Simulation Environment
@@ -94,7 +124,6 @@ The possible values are listed below:
 | ParticleCount | Controls the number of randomly generated particles. | `FixedPC`, `RandomPC`, `FilledPC`                                                |
 | GoalType      | Controls the selection of the goal position.         | `FixedGoal`, `RandomGoal`                                                        |
 
-
 ## Interaction
 For the particle gathering task, specific observations and rewards are not strictly enforced.
 If you find a better way to encode the environment information, or to provide feedback to the RL agent, we highly encourage to do so.
@@ -128,8 +157,6 @@ Particles can be moved into one of eight directions:
 | 5      | North-West |
 | 6      | North      |
 | 7      | North-East |
-
-## Benchmarks
 
 # Reference
 
