@@ -4,39 +4,39 @@
 
 # Gym Gathering
 
-Python package providing [OpenAI-gym](https://github.com/openai/gym) - compatible environments for the particle gathering task.
+Python package providing [OpenAI-gym](https://github.com/openai/gym) - compatible environments which simulate multiple variants of the particle gathering task.
 
 # Getting started
 
 ### Particle Gathering
-Particle gathering is an algorithmic problem where particles - which are randomly distributed in a maze-like environment - should be gathered at a single position using only global control inputs.
+The particle gathering task is a problem where particles - which are randomly distributed in a maze-like environment - should be gathered at a single goal position (or target area) using only global control inputs.
 This means that particles cannot be moved individually and instead all particles are moved into the same direction at the same time. 
-Just think of the particles as magnetic dust in a maze, surrounded by powerful electronic magnets.
+We can think of the particles as magnetic dust in a maze, surrounded by powerful electronic magnets.
 
 This problem becomes interesting in scenarios where a certain payload should be brought to a target by very small agents that do not have enough volume to store the energy for their own movements. 
-An example would be the transport of particles inside the human body (e.g. to combat a tumor).
+An example would be the transport of very small particles inside the human body (e.g. for cancer treatment).
 
 ### Installation
-Currently, installation can be done by cloning this repository and using `pip` for a local installation. 
+Installation requires Python 3.7+ and can be either done using the `pip` package or directly from source. 
 
 #### Install from pip
-The easiest way to install the environments is to use the available pip package using:
+Install the gym-gathering package using `pip`:
 ```
 pip install gym-gathering
 ```
 
 #### Install from source
-To install the package directly from this repository, you can simply clone it and run the installation process using pip:
+To install the package directly from source, you can simply clone it and then run a local installation process using pip:
 ```
 git clone https://github.com/NeoExtended/gym-gathering.git
 cd gym-gathering
 pip install -e .
 ```
 
-This also includes a [script](run_env_as_player.py) which lets you play the environments yourself using the arrow keys.
+Installing the package from source also includes a [script](run_env_as_player.py) which lets you play the environments yourself using the arrow keys.
 
 #### Basic Usage
-The following is a very basic usage example.
+The following is a very basic usage example, demonstrating the typical gym interaction loop.
 The available environments are discussed [here](https://github.com/NeoExtended/gym-gathering#environment-naming).
 
 ```python
@@ -61,51 +61,53 @@ print(f"Total reward: {total_reward}, episode length: {length}")
 ```
 
 # Simulation Environment
-This package adds a series of named gym-environments in a combination of various parameters.
-Each environment can be further customized - especially the reward function and the observations can be either selected from a number of existing choices, or even custom-built.
+This package adds a series of named environments.
+Each environment simulates a different variation of the particle gathering problem.
+The environments can be further customized - especially the reward function and the observations can be either selected from a number of existing choices, or even custom-built.
 Episodes for every environment will be automatically truncated after 2000 steps of interaction.
 
 ## Properties
 
 ### Mazes
-This package includes five different maze environments:
+This package includes environments based on five different mazes:
 
 ![Mazes](docs/images/Instances.png)
 
-Particles can move in the light blue areas and get blocked by the dark blue areas.
-Each maze has a default goal position (marked by a red circle).
+Particles can move through the light blue areas and get blocked by the dark blue areas.
+Each maze has a default goal area (marked by a red circle).
 
 Additionally, mazes with vessel-like structure can be randomly generated.
-The generation is based on rapidly exploring random trees (RRTs).
-Two different environments can be selected which simulate different behavior:
+The generation is based on rapidly exploring random trees (RRTs) which creates vessel-like structures.
+Two different environments with randomized mazes can be selected:
 1. `RandomRRT`: For every episode a new maze is generated. The goal position will be randomly selected from the set of free pixels.
-2. `StagesRRT`: Mazes work like levels in a video game. The agent will act in the first maze (called stage) until it successfully solves it. Then the environment advances to the next stage. If the agent fails to complete the episode before it gets truncated, the environment returns to stage 0. Goal positions will be randomly selected for each new episode. 
+2. `StagesRRT`: Mazes work like levels in a video game. The agent will only see in the first maze (called stage) until it successfully solves it. Then the environment advances to the next stage. If the agent fails to complete the episode before it gets truncated, the environment returns to stage 0. Goal positions will be randomly selected for each new episode. 
 
 ### Particle Physics
-The simulation can be run using two different modes depending on the desired behavior of the particles.
+Environments can currently have three different "physical" models which control how particles behave.
 
 #### Algorithmic particles
-In the *algorithmic* mode, particles directly change their positions.
-This means that in every step, each particle which is not blocked by a wall will move exactly one pixel.
+The *algorithmic* particle model, allows particles to directly change their positions.
+This means that in every step, each particle which is not blocked by a wall will move exactly one pixel into the given direction.
 If two particles enter the same pixel they will merge and never split up again.
 
 #### Fuzzy particles
-In the *fuzzy* physics mode, particles behave similar to algorithmic particles, but introduce randomized errors to the particle control.
+The *fuzzy* particle model, behaves similar to the algorithmic particle model, but introduces randomized errors to the particle control.
 At each step and for each particle there is a chance to move into a random direction and particles may ignore the given action.
 Particles which have previously merged will still stick together and not split up again.
 
 #### Physical particles
-In the *physical* mode, particles are accelerated and change their positions depending on their current speed.
+The *physical* particle model, simulates basic physical particle behavior. 
+Particles are accelerated into the given direction and change their positions depending on their current speed.
 Particles also are affected by drag, and we account for inter-particle collision if more than 3 particles enter the same pixel.
-Particles have a randomized weight and therefore may split up again, even if they previously entered the same pixel.
+In the physical model, particles also have a randomized weight and therefore may split up again, even if they previously entered the same pixel.
 
 ### Goal Positions
-Each maze comes with a fixed default goal position. 
-Additionally, goal positions can be set to random, which results in a new goal position after each episode.
-If you want to manually set a goal position, it can pass the coordinates of the goal using the `goal` parameter.
+For each maze we provide a fixed default goal position. 
+Additionally, goal positions can be set to random, which results in a new goal position for each episode.
+If you want to manually set a goal position, you can pass the coordinates of the goal using the `goal` parameter.
 
 ### Number of particles
-Particles are randomly distributed over each possible free location of the selected maze.
+Particles are randomly distributed over each possible empty location of the selected maze.
 By default, 256 randomly generated particles are created at the start of each episode.
 The number of particles can be controlled by the `n_particles` parameter, which can be set to a range by passing a tuple, or to `filled` to create a completely filled maze.
 
@@ -138,7 +140,7 @@ However, this package contains a number of default observations and a reward gen
 By default, observations are encoded as a single-channel image which has the size of the selected maze.
 The image represents a binary encoding of the position of each particle (positions containing particles will have a value of 255). 
 
-Environments with random goal positions will add a second image channel, encoding the position of the goal.
+Environments with random goal positions will add a second image channel, encoding the position of the goal using a circle with a dot at the center.
 Additionally, environments which also randomize the shape of the maze will provide a third image channel which contains the shape of the current maze.
 
 ### Rewards
