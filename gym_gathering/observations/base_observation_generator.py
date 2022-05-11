@@ -10,14 +10,18 @@ GOAL_MARKER = 255
 
 class ObservationGenerator(ABC):
     def __init__(
-        self, maze: np.ndarray, random_goal: bool, goal_range: int, noise: float = 0.0
+        self,
+        random_goal: bool,
+        goal_range: int,
+        noise: float = 0.0,
+        static_noise: float = 0.0,
     ):
         self.np_random = np.random.random.__self__
         self.observation_space = None
         self.random_goal = random_goal
         self.goal_range = goal_range
         self.noise = noise
-        self.np_random = np.random.random.__self__
+        self.static_noise = static_noise
 
     def observation(
         self, maze: np.ndarray, particles: np.ndarray, goal: Tuple[int, int]
@@ -29,15 +33,26 @@ class ObservationGenerator(ABC):
         out[particles[:, 0], particles[:, 1]] = PARTICLE_MARKER
         return out
 
-    def generate_noise(
-        self, image, maze: Optional[np.ndarray] = None, noise_type: str = "s&p"
+    def generate_noise(self, image, maze: Optional[np.ndarray] = None):
+        out = self._generate_noise(
+            image, self.static_noise, noise_type="s&p", maze=maze
+        )
+        out = self._generate_noise(out, self.noise, noise_type="gauss", maze=maze)
+        return out
+
+    def _generate_noise(
+        self,
+        image: np.ndarray,
+        strength: float,
+        noise_type: str = "s&p",
+        maze: Optional[np.ndarray] = None,
     ):
         out = image
-        if self.noise > 0.0:
+        if strength > 0.0:
             if noise_type == "s&p":
-                out = self.salt_and_pepper_noise(image, self.noise)
+                out = self.salt_and_pepper_noise(image, strength)
             elif noise_type == "gauss":
-                out = self.gaussian_noise(image, self.noise)
+                out = self.gaussian_noise(image, strength)
             else:
                 raise NotImplementedError(f"Unknown noise type {noise_type}")
 
@@ -78,7 +93,9 @@ class ObservationGenerator(ABC):
         self.np_random = np_random
 
     def reset(self):
-        pass
+        self.dirt = self.salt_and_pepper_noise(
+            np.zeros(self.real_world_size), self.dirt_noise
+        )
 
     def seed(self, np_random: np.random.Generator):
         self.np_random = np_random

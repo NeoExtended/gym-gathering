@@ -14,13 +14,14 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
-        dirt_noise: float = 0.0,
+        static_noise: float = 0.0,
+        restrict_noise: bool = False,
         real_world_fac: float = 2,
         max_displacement: int = 5,
         max_crop: int = 5,
     ):
         super(SingleChannelRealWorldObservationGenerator, self).__init__(
-            maze, random_goal, goal_range, noise
+            random_goal, goal_range, noise, static_noise
         )
         self.real_world_fac = real_world_fac
         self.real_world_size = tuple([int(d * self.real_world_fac) for d in maze.shape])
@@ -29,7 +30,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         self.dirt = np.ndarray([])
         self.max_displacement = max_displacement
         self.max_crop = max_crop
-        self.dirt_noise = dirt_noise
+        self.restrict_noise = restrict_noise
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(*maze.shape, 1), dtype=np.uint8
         )
@@ -71,8 +72,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         particles = self.shift(particles, self.displacement[0], self.displacement[1],)
 
         # Add Noise
-        noisy = self.generate_noise(particles, noise_type="s&p")
-        noisy = self.generate_noise(noisy, noise_type="gauss")
+        noisy = self.generate_noise(
+            particles, maze=maze if self.restrict_noise else None
+        )
 
         # Downscale
         downscaled = cv2.resize(
