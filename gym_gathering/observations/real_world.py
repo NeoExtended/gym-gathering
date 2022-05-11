@@ -38,9 +38,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
             low=0, high=255, shape=(*maze.shape, 1), dtype=np.uint8
         )
 
-    def observation(
-        self, particles: np.ndarray, goal: Tuple[int, int]
-    ):
+    def observation(self, particles: np.ndarray, goal: Tuple[int, int]):
         observation = np.zeros(self.maze.shape)
         observation = self.render_particles(particles, out=observation)
         observation = self.distort(observation)
@@ -75,8 +73,18 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         particles = self.shift(particles, self.displacement[0], self.displacement[1],)
 
         # Add Noise
-        noisy = self._generate_noise(particles, strength=self.noise, noise_type="s&p", mask_noise=self.restrict_noise)
-        noisy = self._generate_noise(noisy, strength=self.noise, noise_type="gauss", mask_noise=self.restrict_noise)
+        noisy = self._generate_noise(
+            particles,
+            strength=self.noise,
+            noise_type="s&p",
+            mask_noise=self.restrict_noise,
+        )
+        noisy = self._generate_noise(
+            noisy,
+            strength=self.noise,
+            noise_type="gauss",
+            mask_noise=self.restrict_noise,
+        )
 
         # Downscale
         downscaled = cv2.resize(

@@ -310,9 +310,7 @@ class MazeBase(gym.Env):
         return [seed]
 
     def _generate_observation(self):
-        return self.obs_generator.observation(
-            self.particle_locations, self.goal
-        )
+        return self.obs_generator.observation(self.particle_locations, self.goal)
 
     def _update_locations(self, new_locations):
         """
