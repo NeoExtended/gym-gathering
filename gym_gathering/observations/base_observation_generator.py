@@ -15,6 +15,7 @@ class ObservationGenerator(ABC):
         goal_range: int,
         noise: float = 0.0,
         static_noise: float = 0.0,
+        restrict_noise: bool = True,
     ):
         self.np_random = np.random.random.__self__
         self.observation_space = None
@@ -22,30 +23,32 @@ class ObservationGenerator(ABC):
         self.goal_range = goal_range
         self.noise = noise
         self.static_noise = static_noise
+        self.maze = np.array([])
+        self.dirt = np.array([])
+        self.restrict_noise = restrict_noise
 
-    def observation(
-        self, maze: np.ndarray, particles: np.ndarray, goal: Tuple[int, int]
-    ):
+    def observation(self, particles: np.ndarray, goal: Tuple[int, int]):
         pass
 
-    def render_particles(self, particles: np.ndarray, maze: np.ndarray, out=None):
-        out = out if out is not None else np.zeros(maze.shape)
+    def render_particles(self, particles: np.ndarray, out=None):
+        out = out if out is not None else np.zeros_like(self.maze)
         out[particles[:, 0], particles[:, 1]] = PARTICLE_MARKER
         return out
 
-    def generate_noise(self, image, maze: Optional[np.ndarray] = None):
-        out = self._generate_noise(
-            image, self.static_noise, noise_type="s&p", maze=maze
+    def generate_noise(self, image):
+        if self.static_noise > 0.0:
+            image = image + self.dirt
+        image = self._generate_noise(
+            image, self.noise, noise_type="gauss", mask_noise=self.restrict_noise
         )
-        out = self._generate_noise(out, self.noise, noise_type="gauss", maze=maze)
-        return out
+        return image
 
     def _generate_noise(
         self,
         image: np.ndarray,
         strength: float,
         noise_type: str = "s&p",
-        maze: Optional[np.ndarray] = None,
+        mask_noise: bool = True,
     ):
         out = image
         if strength > 0.0:
@@ -57,8 +60,8 @@ class ObservationGenerator(ABC):
                 raise NotImplementedError(f"Unknown noise type {noise_type}")
 
             # Restrict noise to the maze area
-            if maze is not None:
-                out = image * (1 - maze)
+            if mask_noise:
+                out = image * (1 - self.maze)
         return out
 
     def gaussian_noise(self, image, strength):
@@ -80,11 +83,11 @@ class ObservationGenerator(ABC):
         image[tuple(coords)] = 0
         return image
 
-    def render_maze(self, maze):
-        return maze * 255
+    def render_maze(self):
+        return self.maze * 255
 
-    def render_goal(self, maze: np.ndarray, goal: Tuple[int, int], out=None):
-        out = out if out is not None else np.zeros(maze.shape)
+    def render_goal(self, goal: Tuple[int, int], out=None):
+        out = out if out is not None else np.zeros(self.maze.shape)
         cv2.circle(out, tuple(goal), self.goal_range, GOAL_MARKER)
         out[goal[1] - 1 : goal[1] + 1, goal[0] - 1 : goal[0] + 1] = GOAL_MARKER
         return out
@@ -92,10 +95,15 @@ class ObservationGenerator(ABC):
     def seed(self, np_random: np.random.Generator):
         self.np_random = np_random
 
-    def reset(self):
-        self.dirt = self.salt_and_pepper_noise(
-            np.zeros(self.real_world_size), self.dirt_noise
-        )
+    def reset(self, maze: np.ndarray):
+        self.maze = maze
+        if self.static_noise > 0.0:
+            self.dirt = self._generate_noise(
+                np.zeros_like(self.maze),
+                self.static_noise,
+                "s&p",
+                mask_noise=self.restrict_noise,
+            )
 
     def seed(self, np_random: np.random.Generator):
         self.np_random = np_random

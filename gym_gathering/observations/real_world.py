@@ -21,7 +21,11 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         max_crop: int = 5,
     ):
         super(SingleChannelRealWorldObservationGenerator, self).__init__(
-            random_goal, goal_range, noise, static_noise
+            random_goal=random_goal,
+            goal_range=goal_range,
+            noise=noise,
+            static_noise=static_noise,
+            restrict_noise=restrict_noise,
         )
         self.real_world_fac = real_world_fac
         self.real_world_size = tuple([int(d * self.real_world_fac) for d in maze.shape])
@@ -30,24 +34,23 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         self.dirt = np.ndarray([])
         self.max_displacement = max_displacement
         self.max_crop = max_crop
-        self.restrict_noise = restrict_noise
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(*maze.shape, 1), dtype=np.uint8
         )
 
     def observation(
-        self, maze: np.ndarray, particles: np.ndarray, goal: Tuple[int, int]
+        self, particles: np.ndarray, goal: Tuple[int, int]
     ):
-        observation = np.zeros(maze.shape)
-        observation = self.render_particles(particles, maze, out=observation)
-        observation = self.distort(observation, maze)
+        observation = np.zeros(self.maze.shape)
+        observation = self.render_particles(particles, out=observation)
+        observation = self.distort(observation)
 
         if self.random_goal:
-            observation = self.render_goal(maze, goal, out=observation)
+            observation = self.render_goal(goal, out=observation)
 
         return observation[:, :, np.newaxis]  # Convert to single channel image
 
-    def distort(self, observation, maze):
+    def distort(self, observation):
         output_shape = observation.shape
 
         # Scale up
@@ -72,9 +75,8 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         particles = self.shift(particles, self.displacement[0], self.displacement[1],)
 
         # Add Noise
-        noisy = self.generate_noise(
-            particles, maze=maze if self.restrict_noise else None
-        )
+        noisy = self._generate_noise(particles, strength=self.noise, noise_type="s&p", mask_noise=self.restrict_noise)
+        noisy = self._generate_noise(noisy, strength=self.noise, noise_type="gauss", mask_noise=self.restrict_noise)
 
         # Downscale
         downscaled = cv2.resize(
@@ -86,7 +88,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
 
         # Restrict noise to maze area + 2 pixels
         kernel = np.ones((5, 5), np.uint8)
-        opened = cv2.dilate((1 - maze), kernel, iterations=2)
+        opened = cv2.dilate((1 - self.maze), kernel, iterations=2)
         out = out * opened
 
         return out
@@ -101,7 +103,8 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         # Image translation
         return cv2.warpAffine(image, translation_matrix, (num_cols, num_rows))
 
-    def reset(self):
+    def reset(self, maze: np.ndarray):
+        self.maze = maze
         self.displacement = (
             self.np_random.randint(-self.max_displacement, self.max_displacement),
             self.np_random.randint(-self.max_displacement, self.max_displacement),
@@ -109,6 +112,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
 
         self.crop = [self.np_random.randint(0, self.max_crop) for _ in range(4)]
 
-        self.dirt = self.salt_and_pepper_noise(
-            np.zeros(self.real_world_size), self.dirt_noise
+        self.dirt = self._generate_noise(
+            np.zeros(self.real_world_size),
+            self.static_noise,
+            "s&p",
+            mask_noise=self.restrict_noise,
         )
