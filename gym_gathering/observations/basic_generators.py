@@ -13,14 +13,18 @@ class SingleChannelObservationGenerator(ObservationGenerator):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
+        noise_type: str = "gauss",
         static_noise: float = 0.0,
+        static_noise_type: str = "s&p",
         restrict_noise: bool = True,
     ):
         super(SingleChannelObservationGenerator, self).__init__(
             random_goal=random_goal,
             goal_range=goal_range,
             noise=noise,
+            noise_type=noise_type,
             static_noise=static_noise,
+            static_noise_type=static_noise_type,
             restrict_noise=restrict_noise,
         )
         self.observation_space = gym.spaces.Box(
@@ -45,14 +49,18 @@ class MultiChannelObservationGenerator(ObservationGenerator):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
+        noise_type: str = "gauss",
         static_noise: float = 0.0,
+        static_noise_type: str = "s&p",
         restrict_noise: bool = True,
     ):
         super(MultiChannelObservationGenerator, self).__init__(
             random_goal=random_goal,
             goal_range=goal_range,
             noise=noise,
+            noise_type=noise_type,
             static_noise=static_noise,
+            static_noise_type=static_noise_type,
             restrict_noise=restrict_noise,
         )
 

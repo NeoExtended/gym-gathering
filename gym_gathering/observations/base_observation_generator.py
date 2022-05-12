@@ -14,7 +14,9 @@ class ObservationGenerator(ABC):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
+        noise_type: str = "gauss",
         static_noise: float = 0.0,
+        static_noise_type: str = "s&p",
         restrict_noise: bool = True,
     ):
         self.np_random = np.random.random.__self__
@@ -22,7 +24,9 @@ class ObservationGenerator(ABC):
         self.random_goal = random_goal
         self.goal_range = goal_range
         self.noise = noise
+        self.noise_type = noise_type
         self.static_noise = static_noise
+        self.static_noise_type = static_noise_type
         self.maze = np.array([])
         self.dirt = np.array([])
         self.restrict_noise = restrict_noise
@@ -39,7 +43,10 @@ class ObservationGenerator(ABC):
         if self.static_noise > 0.0:
             image = image + self.dirt
         image = self._generate_noise(
-            image, self.noise, noise_type="gauss", mask_noise=self.restrict_noise
+            image,
+            self.noise,
+            noise_type=self.noise_type,
+            mask_noise=self.restrict_noise,
         )
         return image
 
@@ -100,8 +107,8 @@ class ObservationGenerator(ABC):
         if self.static_noise > 0.0:
             self.dirt = self._generate_noise(
                 np.zeros_like(self.maze),
-                self.static_noise,
-                "s&p",
+                strength=self.static_noise,
+                noise_type=self.static_noise_type,
                 mask_noise=self.restrict_noise,
             )
 

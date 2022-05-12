@@ -14,7 +14,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
+        noise_type: str = "gauss",
         static_noise: float = 0.0,
+        static_noise_type: str = "s&p",
         restrict_noise: bool = False,
         real_world_fac: float = 2,
         max_displacement: int = 5,
@@ -24,7 +26,9 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
             random_goal=random_goal,
             goal_range=goal_range,
             noise=noise,
+            noise_type=noise_type,
             static_noise=static_noise,
+            static_noise_type=static_noise_type,
             restrict_noise=restrict_noise,
         )
         self.real_world_fac = real_world_fac
@@ -73,6 +77,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         particles = self.shift(particles, self.displacement[0], self.displacement[1],)
 
         # Add Noise
+        # We are ignoring the noise type - the real world obs generator is always using both types.
         noisy = self._generate_noise(
             particles,
             strength=self.noise,
@@ -123,6 +128,6 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         self.dirt = self._generate_noise(
             np.zeros(self.real_world_size),
             self.static_noise,
-            "s&p",
+            self.static_noise_type,
             mask_noise=self.restrict_noise,
         )
