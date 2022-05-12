@@ -41,7 +41,7 @@ class ObservationGenerator(ABC):
 
     def generate_noise(self, image):
         if self.static_noise > 0.0:
-            image = image + self.dirt
+            image = np.clip(image + self.dirt, 0, 255)
         image = self._generate_noise(
             image,
             self.noise,
