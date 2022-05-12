@@ -143,7 +143,7 @@ class MazeBase(gym.Env):
             else observation_type
         )
         self.obs_generator = obs_generator_class(
-            self.randomize_goal, self.goal_range, **self.observation_kwargs
+            self.maze, self.randomize_goal, self.goal_range, **self.observation_kwargs
         )  # type: ObservationGenerator
 
     def _create_modifiers(self, step_type, step_kwargs):
