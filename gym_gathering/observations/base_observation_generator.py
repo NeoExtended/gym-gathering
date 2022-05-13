@@ -111,6 +111,3 @@ class ObservationGenerator(ABC):
                 noise_type=self.static_noise_type,
                 mask_noise=self.restrict_noise,
             )
-
-    def seed(self, np_random: np.random.Generator):
-        self.np_random = np_random
