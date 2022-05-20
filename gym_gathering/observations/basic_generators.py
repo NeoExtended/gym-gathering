@@ -72,7 +72,7 @@ class MultiChannelObservationGenerator(ObservationGenerator):
     def observation(self, particles: np.ndarray, goal: Tuple[int, int]):
         observation = np.zeros((*self.maze.shape, self.n_channels))
         observation[:, :, 0] = self.render_maze()
-        particle_image = self.render_particles(particles, self.maze)
+        particle_image = self.render_particles(particles)
         particle_image = self.generate_noise(particle_image)
         observation[:, :, 1] = particle_image
 
